@@ -1,4 +1,5 @@
-from base import Dispositivo
+from domotica.base import Dispositivo
+from domotica.common import Utils, DatoInvalido
 
 
 class SensorTemperatura(Dispositivo):
@@ -24,6 +25,7 @@ class SensorTemperatura(Dispositivo):
 class BombillaInteligente(Dispositivo):
     _brillo: int
     _encendida: bool
+    _version_firmware: str
 
     def __init__(self, id, nombre, fabricante, brillo):
         super().__init__(id, nombre, fabricante)
@@ -31,6 +33,7 @@ class BombillaInteligente(Dispositivo):
             raise ValueError("El brillo ha de ser positivo y menor o igual a 100")
         self._brillo = brillo
         self._encendida = False
+        self._version_firmware = "1.0.0"
 
     def get_brillo(self):
         return self._brillo
@@ -56,6 +59,15 @@ class BombillaInteligente(Dispositivo):
     def tipo(self):
         return "BombillaInteligente"
 
+    def get_firmware(self):
+        return self._version_firmware
+
+    def actualizar_firmware(self, version: str):
+        if not Utils.validar_version(version):
+            raise DatoInvalido("La versión del firmare no es válida")
+
+        self._version_firmware = version
+
 
 class CerraduraInteligente(Dispositivo):
     _bloqueada: bool
@@ -75,7 +87,14 @@ class CerraduraInteligente(Dispositivo):
     def desbloquear(self):
         if not self._bloqueada:
             raise ValueError("La cerradura ya está desbloqueada")
+
         self._bloqueada = False
+
+    def encender(self):
+        self.bloquear()
+
+    def apagar(self):
+        self.desbloquear()
 
     def tipo(self):
         return "CerraduraInteligente"
