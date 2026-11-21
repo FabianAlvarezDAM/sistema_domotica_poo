@@ -1,5 +1,5 @@
-from domotica.base import Dispositivo
-from domotica.common import Utils, DatoInvalido
+from .base import Dispositivo
+from .common import Utils, DatoInvalido
 
 
 class SensorTemperatura(Dispositivo):
@@ -7,13 +7,24 @@ class SensorTemperatura(Dispositivo):
 
     def __init__(self, id, nombre, fabricante, celsius):
         super().__init__(id, nombre, fabricante)
-        self._celsius = celsius
+        self.set_celsius(celsius)
+
+    def __str__(self) -> str:
+        return (
+            f"[{self.tipo()}] {self.get_nombre()} "
+            f"(id={self.get_id()}, "
+            f"fabricante={self.get_fabricante()}, "
+            f"temperatura={self._celsius:.1f} ºC)"
+        )
 
     def get_celsius(self):
         return self._celsius
 
     def set_celsius(self, celsius):
-        self._celsius = celsius
+        if not isinstance(celsius, (int, float)):
+            raise DatoInvalido("La temperatura tiene que ser un valor numérico")
+
+        self._celsius = float(celsius)
 
     def leer_valor(self):
         return self._celsius
@@ -30,7 +41,7 @@ class BombillaInteligente(Dispositivo):
     def __init__(self, id, nombre, fabricante, brillo):
         super().__init__(id, nombre, fabricante)
         if brillo < 0 or brillo > 100:
-            raise ValueError("El brillo ha de ser positivo y menor o igual a 100")
+            raise DatoInvalido("El brillo ha de ser positivo y menor o igual a 100")
         self._brillo = brillo
         self._encendida = False
         self._version_firmware = "1.0.0"
@@ -40,8 +51,18 @@ class BombillaInteligente(Dispositivo):
 
     def set_brillo(self, brillo):
         if brillo < 0 or brillo > 100:
-            raise ValueError("El brillo ha de ser positivo y menor o igual a 100")
+            raise DatoInvalido("El brillo ha de ser positivo y menor o igual a 100")
         self._brillo = brillo
+
+    def __str__(self) -> str:
+        estado = "encendida" if self._encendida else "apagada"
+
+        return (
+            f"[{self.tipo()}] {self.get_nombre()} "
+            f"(id={self.get_id()}, "
+            f"fabricante={self.get_fabricante()}, "
+            f"brillo={self._brillo}, {estado})"
+        )
 
     def get_encendida(self):
         return self._encendida
@@ -74,7 +95,17 @@ class CerraduraInteligente(Dispositivo):
 
     def __init__(self, id, nombre, fabricante):
         super().__init__(id, nombre, fabricante)
-        self._bloqueada = False
+        self._bloqueada = True
+
+    def __str__(self) -> str:
+        estado = "bloqueada" if self._bloqueada else "desbloqueada"
+
+        return (
+            f"[{self.tipo()}] {self.get_nombre()} "
+            f"(id={self.get_id()}, "
+            f"fabricante={self.get_fabricante()}, "
+            f"{estado})"
+        )
 
     def get_bloqueada(self):
         return self._bloqueada

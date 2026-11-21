@@ -6,7 +6,7 @@ from domotica.common import DatoInvalido, Duplicado, NoEncontrado
 
 def main():
 
-    print("------ SISTEMA DE DOMÓTICA ------")
+    print("------ INICIO DEMO DOMOTICA ------")
 
     hub = Hub()
 

@@ -1,6 +1,5 @@
 from .base import Dispositivo
-from .dispositivos import BombillaInteligente
-from .interfaces import *
+from .interfaces import Medible, Conmutable
 from .common import Duplicado, NoEncontrado
 
 
@@ -12,7 +11,7 @@ class Hub:
 
     def registrar(self, disp: Dispositivo):
         if disp.get_id() in self._dispositivos:
-            raise Duplicado("El dispsoitivo ya registrado")
+            raise Duplicado("El dispositivo ya está registrado")
 
         self._dispositivos[disp.get_id()] = disp
 
@@ -27,19 +26,21 @@ class Hub:
             if isinstance(dispositivo, Conmutable):
                 try:
                     dispositivo.encender()
-                    print(f"{dispositivo.get_id} está encendido")
+                    print(f"{dispositivo.get_id()} está encendido")
                 except ValueError as error:
-                    print(f"Error en {dispositivo.get_id}: {error}")
+                    print(f"Error en {dispositivo.get_id()}: {error}")
 
                 try:
                     dispositivo.apagar()
-                    print(f"{dispositivo.get_id} está apagado")
+                    print(f"{dispositivo.get_id()} está apagado")
                 except ValueError as error:
-                    print(f"Error en {dispositivo.get_id}: {error}")
+                    print(f"Error en {dispositivo.get_id()}: {error}")
 
-    def buscar(self, identificador: str) -> Dispositivo:
-        if identificador not in self._dispositivos:
-            raise NoEncontrado("No existe ese disppsitivo")
+    def buscar(self, id: str) -> Dispositivo:
+        if id not in self._dispositivos:
+            raise NoEncontrado("No existe ese dispositivo")
+
+        return self._dispositivos[id]
 
     def estadisticas(self) -> dict:
         resultado = {}

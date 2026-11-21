@@ -1,12 +1,18 @@
 class DatoInvalido(ValueError):
+    """Se lanza cuando un dato no cumple con las reglas previstas."""
+
     pass
 
 
 class Duplicado(Exception):
+    """Se lanza cuando un identificador ya está registrado"""
+
     pass
 
 
 class NoEncontrado(Exception):
+    """Se lanza cuando no existe un identificador."""
+
     pass
 
 
@@ -14,19 +20,19 @@ class Utils:
     @staticmethod
     def validar_id(texto: str) -> bool:
         if not isinstance(texto, str):
-            raise DatoInvalido("El identificador debe ser un texto")
+            return False
 
         texto_sin_espacios = texto.strip()
 
         if texto_sin_espacios == "":
-            raise DatoInvalido("El identificador no puede estar vacío")
+            return False
 
         if not texto_sin_espacios[0].isalpha():
-            raise DatoInvalido("El identificador debe empezar por una letra")
+            return False
 
         for caracter in texto_sin_espacios:
             if not caracter.isalnum() and caracter != "-":
-                raise DatoInvalido("El identificador contiene caracteres no permitidos")
+                return False
 
         return True
 
@@ -43,14 +49,12 @@ class Utils:
         if not 0 < n:
             raise DatoInvalido("El número debe ser positivo")
 
-        id = f"{prefijo}{n:03d}"
+        id_candidato = f"{prefijo}{n:03d}"
 
-        try:
-            Utils.validar_id(id)
-        except DatoInvalido:
-            raise (f"ID generado inválida: {id}")
+        if Utils.validar_id(id_candidato) == False:
+            raise DatoInvalido(f"ID generado inválido: {id_candidato}")
 
-        return id
+        return id_candidato
 
     @staticmethod
     def validar_version(version: str) -> bool:
