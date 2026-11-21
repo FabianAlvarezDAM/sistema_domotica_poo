@@ -1,12 +1,18 @@
-from domotica.dispositivos import *
+from domotica.dispositivos import (
+    SensorTemperatura,
+    BombillaInteligente,
+    CerraduraInteligente,
+)
 from domotica.hub import Hub
-from domotica.interfaces import *
-from domotica.common import DatoInvalido, Duplicado, NoEncontrado
+from domotica.interfaces import Medible, Conmutable, Actualizable
+from domotica.common import Utils, DatoInvalido, Duplicado, NoEncontrado
 
 
 def main():
 
     print("------ INICIO DEMO DOMOTICA ------")
+
+    print()
 
     hub = Hub()
 
@@ -63,26 +69,21 @@ def main():
     for datos in dispositivos:
         try:
             if not Utils.validar_id(datos["id"]):
-                raise DatoInvalido(
-                    f"Identificador inválido: {datos['id']}"
-                )
+                raise DatoInvalido(f"Identificador inválido: {datos['id']}")
 
             if datos["tipo"] == "sensor":
                 dispositivo = SensorTemperatura(
-                    datos["id"], datos["nombre"],
-                    datos["fabricante"], datos["celsius"]
+                    datos["id"], datos["nombre"], datos["fabricante"], datos["celsius"]
                 )
 
             elif datos["tipo"] == "bombilla":
                 dispositivo = BombillaInteligente(
-                    datos["id"], datos["nombre"],
-                    datos["fabricante"], datos["brillo"]
+                    datos["id"], datos["nombre"], datos["fabricante"], datos["brillo"]
                 )
 
             elif datos["tipo"] == "cerradura":
                 dispositivo = CerraduraInteligente(
-                    datos["id"], datos["nombre"],
-                    datos["fabricante"]
+                    datos["id"], datos["nombre"], datos["fabricante"]
                 )
 
             hub.registrar(dispositivo)
@@ -92,42 +93,65 @@ def main():
             print(f"Error al registrar: {e}")
 
     try:
-        duplicado = BombillaInteligente(
-            "B001", "Otra bombilla", "Philips", 70
-        )
+        duplicado = BombillaInteligente("B001", "Otra bombilla", "Philips", 70)
         hub.registrar(duplicado)
 
     except Duplicado as e:
         print(e)
 
+    print()
     print("------ DISPOSITIVOS REGISTRADOS ------")
+    print()
 
     for dispositivo in hub.listar():
         print(dispositivo)
 
-   
-    print("\n===== CAPACIDADES =====")
+    print()
+    print("------ CAPACIDADES ------")
+    print()
+
+    medibles = 0
+    conmutables = 0
+    actualizables = 0
 
     for dispositivo in hub.listar():
         capacidades = []
 
         if isinstance(dispositivo, Medible):
             capacidades.append("Medible")
+            medibles += 1
 
         if isinstance(dispositivo, Conmutable):
             capacidades.append("Conmutable")
+            conmutables += 1
 
         if isinstance(dispositivo, Actualizable):
             capacidades.append("Actualizable")
+            actualizables += 1
 
         print(f"{dispositivo.get_id()}: {', '.join(capacidades)}")
 
-  
-    print("\n===== OPERACIONES DEL HUB =====")
+    print()
+    print("------ RESUMEN CAPACIDADES ------")
+    print()
+    print(f"Medibles: {medibles}")
+    print(f"Conmutables: {conmutables}")
+    print(f"Actualizables: {actualizables}")
+    print()
+
+    print("------ OPERACIONES DEL HUB ------")
+    print()
+
+    cerradura = hub.buscar("C001")
+    print(f"Estado inicial : {'bloqueada' if cerradura.get_bloqueada() else 'desbloqueada'}")
+
     hub.operar_todos()
 
-  
-    print("\n===== ACCIONES ESPECÍFICAS =====")
+    print(f"Estado tras operar el Hub: {'bloqueada' if cerradura.get_bloqueada() else 'desbloqueada'}")
+
+    print()
+    print("------ ACCIONES ESPECÍFICAS ------")
+    print()
 
     bombilla = hub.buscar("B001")
 
@@ -144,19 +168,15 @@ def main():
     except DatoInvalido as e:
         print(f"Error de firmware: {e}")
 
-    # 8. Operaciones con cerradura
-    cerradura = hub.buscar("C001")
-
-    print(f"\nEstado inicial de cerradura: {cerradura.get_bloqueada()}")
-
     cerradura.bloquear()
     print("Cerradura bloqueada")
 
     cerradura.desbloquear()
     print("Cerradura desbloqueada")
+    print()
 
-    # 9. Estadísticas
-    print("\n===== ESTADÍSTICAS =====")
+    print("------ ESTADÍSTICAS ------")
+    print()
 
     estadisticas = hub.estadisticas()
 
@@ -165,8 +185,9 @@ def main():
 
     print(f"Total de dispositivos: {len(hub.listar())}")
 
-    # 10. Buscar dispositivo inexistente
-    print("\n===== PRUEBA DE BÚSQUEDA =====")
+    print()
+    print("------ PRUEBA DE BÚSQUEDA ------")
+    print()
 
     try:
         hub.buscar("X999")
@@ -174,9 +195,16 @@ def main():
     except NoEncontrado as e:
         print(e)
 
+    print()
+    print("------ PRUEBA DE VALIDACIÓN ------")
+    print()
+
+    id_invalido = "A_01"
+    print(f"Validar {id_invalido}: {Utils.validar_id(id_invalido)}")
+
+    print()
+    print("------ FIN DE LA DEMO ------")
+
 
 if __name__ == "__main__":
     main()
-
-
-
